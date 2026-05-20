@@ -173,13 +173,16 @@
          Section D — Scope target (used by scopeElementSelector test)
          Stand-alone wrapper containing exactly ONE custom interactive
          element so the "scoped to part-of-page" scenario can verify
-         the engine only inspects nodes inside the scope.
+         the engine only inspects nodes inside the scope. The `<form
+         action="/action1_page.php">` matches the AT_SELECT_SCOPE_OF_PAGE
+         locator used by the BStackAutomation regression suite when
+         selecting a part-of-page test target.
          ============================================================ -->
-    <div class="demo-section" id="scoped-region">
+    <form action="/action1_page.php" class="demo-section" id="scoped-region" onsubmit="event.preventDefault();">
       <h2>D. Scoped region (single custom interactive)</h2>
-      <p>scopeElementSelector should target only this section's interactive element.</p>
+      <p>scopeElementSelector should target only this form's interactive element.</p>
       <div class="pseudo-btn" onclick="alert('clicked scoped pseudo-btn')">Scoped pseudo-button</div>
-    </div>
+    </form>
   </main>
 
   <script>
