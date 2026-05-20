@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Interactive Elements Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background-color: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    /* Custom interactive divs intentionally styled like buttons. */
+    .pseudo-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background: #2c3e50;
+      color: white;
+      border-radius: 3px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .pseudo-btn:hover {
+      background: #34495e;
+    }
+
+    .pseudo-btn:focus {
+      outline: 2px solid #f39c12;
+    }
+
+    .menu-item {
+      padding: 8px 12px;
+      background: #ecf0f1;
+      margin: 4px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .access {
+      padding: 6px 14px;
+      background: #16a085;
+      color: white;
+      margin: 4px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .slick-prev,
+    .slick-next {
+      padding: 8px 12px;
+      background: #7f8c8d;
+      color: white;
+      margin: 4px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .ambiguous-trap {
+      padding: 8px 16px;
+      background: #e74c3c;
+      color: white;
+      margin: 4px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .mouse-only-btn {
+      padding: 8px 16px;
+      background: #9b59b6;
+      color: white;
+      margin: 4px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .panel {
+      margin-top: 8px;
+      padding: 8px;
+      background: #fffae6;
+      border-left: 3px solid #f39c12;
+      display: none;
+    }
+
+    .panel.open {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Custom Interactive Elements — Keyboard AT fixture</h1>
+  <p>
+    This page exercises the COLLECT_INTERACTIVE_ELEMENTS_DATA flow with a variety of custom
+    (non-semantic) interactive elements. Each element type targets a specific engine code path.
+  </p>
+
+  <!-- ============================================================
+       Section A — Obvious custom interactive elements (no role)
+       These divs are clickable but lack semantic role/tabindex.
+       Engine should flag them on COLLECT_INTERACTIVE_ELEMENTS_DATA.
+       ============================================================ -->
+  <main>
+    <div class="demo-section">
+      <h2>A. Custom interactive divs (no semantic role)</h2>
+      <p>Divs with onclick handlers but missing role/tabindex.</p>
+
+      <div>
+        <div class="menu-item" onclick="alert('clicked menu-item')">Menu</div>
+        <div class="access" onclick="alert('clicked access')">Access</div>
+        <div class="slick-prev" onclick="alert('clicked slick-prev')">Prev</div>
+        <ol>
+          <li onclick="alert('clicked li-1')">Custom list item 1</li>
+          <li onclick="alert('clicked li-2')">Custom list item 2</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         Section B — Ambiguous element (3-option question target)
+         Has tabindex + onclick but no role. Engine should ask the
+         "is this an interactive element accessible by keyboard?"
+         3-option question (NO / YES_IN_ORDER / YES_NO_IN_ORDER).
+         ============================================================ -->
+    <div class="demo-section">
+      <h2>B. Ambiguous trap-detected element</h2>
+      <p>Focusable via tabindex but no semantic role — flow should surface 3 navigability options.</p>
+      <div
+        class="ambiguous-trap"
+        id="ambiguous-target"
+        tabindex="0"
+        onclick="document.getElementById('ambiguous-panel').classList.toggle('open')"
+      >
+        Toggle Panel (ambiguous interactive)
+      </div>
+      <div class="panel" id="ambiguous-panel">Panel content revealed by the ambiguous trigger.</div>
+    </div>
+
+    <!-- ============================================================
+         Section C — Mouse-only custom element with role="button"
+         Element exposes role=button but has NO keydown handler.
+         Engine should classify as inaccessible-interactive-element
+         even though role is present.
+         ============================================================ -->
+    <div class="demo-section">
+      <h2>C. Mouse-only custom button (role=button, no keydown)</h2>
+      <p>role="button" but only an onclick handler — keyboard cannot activate it.</p>
+      <div
+        class="mouse-only-btn"
+        role="button"
+        tabindex="0"
+        onclick="document.getElementById('mouse-only-panel').classList.toggle('open')"
+      >
+        Mouse-only "Button"
+      </div>
+      <div class="panel" id="mouse-only-panel">Only the mouse can reach this panel.</div>
+    </div>
+
+    <!-- ============================================================
+         Section D — Scope target (used by scopeElementSelector test)
+         Stand-alone wrapper containing exactly ONE custom interactive
+         element so the "scoped to part-of-page" scenario can verify
+         the engine only inspects nodes inside the scope.
+         ============================================================ -->
+    <div class="demo-section" id="scoped-region">
+      <h2>D. Scoped region (single custom interactive)</h2>
+      <p>scopeElementSelector should target only this section's interactive element.</p>
+      <div class="pseudo-btn" onclick="alert('clicked scoped pseudo-btn')">Scoped pseudo-button</div>
+    </div>
+  </main>
+
+  <script>
+    // No framework needed — engine just needs the DOM patterns.
+    // Custom interactive elements are intentionally non-semantic
+    // so the keyboardAT new-flow engine has something to detect.
+  </script>
+</body>
+
+</html>

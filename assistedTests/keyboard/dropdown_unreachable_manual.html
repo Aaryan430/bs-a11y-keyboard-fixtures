@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dropdown Unreachable Manual Review Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .nav-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-row > div {
+      background: #34495e;
+      color: white;
+      padding: 8px 16px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .nav-row > div:focus {
+      outline: 2px solid #f39c12;
+    }
+
+    .dropdown-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #2c3e50;
+      min-width: 180px;
+      z-index: 10;
+    }
+
+    .dropdown-panel.open {
+      display: block;
+    }
+
+    .dropdown-panel a {
+      display: block;
+      color: white;
+      padding: 8px 12px;
+      text-decoration: none;
+    }
+
+    .dropdown-panel a:hover,
+    .dropdown-panel a:focus {
+      background: #1abc9c;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Dropdown Unreachable — Manual Review Fixture</h1>
+  <p>
+    6 total interactive elements; 4 are dropdowns. 2 dropdowns are reachable by keyboard, the other
+    2 are unreachable (no tabindex / pointer-only). The MANUALLY_VERIFY_DROPDOWN_ACCESSIBILITY screen
+    should surface the 2 unreachable dropdowns for per-element review.
+  </p>
+
+  <!-- ============================================================
+       Element 1: Reachable dropdown (tabindex 0 + keydown handler)
+       ============================================================ -->
+  <div class="demo-section">
+    <h2>1. Reachable dropdown — tabindex + keydown</h2>
+    <div class="nav-row">
+      <div
+        id="dd-reachable-1"
+        tabindex="0"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+        onclick="toggle('panel-1')"
+        onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggle('panel-1'); }"
+      >
+        Products ▾
+        <div class="dropdown-panel" id="panel-1">
+          <a href="#electronics">Electronics</a>
+          <a href="#clothing">Clothing</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Element 2: Reachable dropdown (semantic button)
+       ============================================================ -->
+  <div class="demo-section">
+    <h2>2. Reachable dropdown — semantic button</h2>
+    <button
+      type="button"
+      id="dd-reachable-2"
+      aria-haspopup="true"
+      aria-expanded="false"
+      onclick="toggle('panel-2')"
+    >
+      Services ▾
+    </button>
+    <div class="dropdown-panel" id="panel-2">
+      <a href="#consulting">Consulting</a>
+      <a href="#support">Support</a>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Element 3: Unreachable dropdown #1 (no tabindex)
+       ============================================================ -->
+  <div class="demo-section">
+    <h2>3. Unreachable dropdown — no tabindex, no keydown</h2>
+    <div class="nav-row">
+      <div
+        id="dd-unreachable-1"
+        aria-haspopup="true"
+        aria-expanded="false"
+        onclick="toggle('panel-3')"
+      >
+        About ▾
+        <div class="dropdown-panel" id="panel-3">
+          <a href="#team">Team</a>
+          <a href="#careers">Careers</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Element 4: Unreachable dropdown #2 (tabindex=-1)
+       ============================================================ -->
+  <div class="demo-section">
+    <h2>4. Unreachable dropdown — tabindex=-1</h2>
+    <div class="nav-row">
+      <div
+        id="dd-unreachable-2"
+        tabindex="-1"
+        aria-haspopup="true"
+        aria-expanded="false"
+        onclick="toggle('panel-4')"
+      >
+        Resources ▾
+        <div class="dropdown-panel" id="panel-4">
+          <a href="#docs">Docs</a>
+          <a href="#blog">Blog</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Element 5 + 6: Plain reachable controls (rounds out the 6-element count)
+       ============================================================ -->
+  <div class="demo-section">
+    <h2>5 &amp; 6. Plain reachable controls</h2>
+    <button type="button" id="btn-search">Search</button>
+    <a href="#contact" id="link-contact">Contact us</a>
+  </div>
+
+  <script>
+    function toggle(panelId) {
+      document.querySelectorAll('.dropdown-panel').forEach(function (p) {
+        if (p.id !== panelId) p.classList.remove('open');
+      });
+      var p = document.getElementById(panelId);
+      if (p) p.classList.toggle('open');
+    }
+  </script>
+</body>
+
+</html>

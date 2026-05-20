@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dropdown Phase-2 Unrecoverable Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    /* ============ Section A: aria-activedescendant combobox ============ */
+    .combobox {
+      display: inline-block;
+      width: 280px;
+      border: 1px solid #aaa;
+      border-radius: 3px;
+      padding: 6px 10px;
+      cursor: text;
+    }
+
+    .combobox:focus { outline: 2px solid #f39c12; }
+
+    .listbox {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0;
+      width: 280px;
+      border: 1px solid #ccc;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .listbox li {
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .listbox li.active {
+      background: #2980b9;
+      color: white;
+    }
+
+    /* ============ Section B: modal trap ============ */
+    .trigger {
+      padding: 8px 16px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .trigger:focus { outline: 2px solid #f39c12; }
+
+    .modal-mask {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-mask.open { display: flex; }
+
+    .modal-card {
+      background: white;
+      padding: 24px;
+      border-radius: 6px;
+      width: 320px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-card .close { display: none; }
+  </style>
+</head>
+
+<body>
+  <h1>Dropdown Phase-2 Unrecoverable — Keyboard AT fixture</h1>
+  <p>
+    Two distinct dropdown patterns where the keyboardAT simulator's Phase 2 (close-the-dropdown
+    recovery step) cannot succeed. Both should be surfaced on the "manual review" screen.
+  </p>
+
+  <!-- ============================================================
+       Section A — aria-activedescendant focus loop combobox
+       ============================================================ -->
+  <div class="demo-section" data-section="A">
+    <h2>A. aria-activedescendant combobox with focus loop</h2>
+    <label for="combobox">Choose an option:</label>
+    <div
+      role="combobox"
+      id="combobox"
+      class="combobox"
+      tabindex="0"
+      aria-haspopup="listbox"
+      aria-owns="listbox-options"
+      aria-expanded="true"
+      aria-activedescendant="opt-0"
+    >
+      <span id="combobox-label">Option 1</span>
+    </div>
+
+    <ul role="listbox" id="listbox-options" class="listbox" aria-labelledby="combobox-label">
+      <li role="option" id="opt-0" class="active">Option 1</li>
+      <li role="option" id="opt-1">Option 2</li>
+      <li role="option" id="opt-2">Option 3</li>
+      <li role="option" id="opt-3">Option 4</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================
+       Section B — Modal that swallows all keys
+       ============================================================ -->
+  <div class="demo-section" data-section="B">
+    <h2>B. Modal trap (swallows Escape / Tab / Enter)</h2>
+    <button type="button" class="trigger" id="open-trigger">Open unrecoverable modal</button>
+  </div>
+
+  <!-- ============================================================
+       Section C — Generic Tab focus trap (non-aria-activedescendant)
+       Distinct engine code path from Sections A and B. Engine should
+       raise the keyboard-trap rule directly (no manual-review surface).
+       ============================================================ -->
+  <div class="demo-section" data-section="C">
+    <h2>C. Generic Tab focus trap (raises keyboard-trap rule)</h2>
+    <p>Plain button whose <code>keydown</code> handler swallows Tab + Shift+Tab.</p>
+    <button
+      type="button"
+      class="trigger"
+      id="tab-trap"
+      onkeydown="if (event.key === 'Tab') { event.preventDefault(); event.stopPropagation(); }"
+    >
+      Tab is trapped on this button
+    </button>
+    <p>
+      Reachable control above the trap (for the engine to compare against):
+    </p>
+    <button type="button" id="trap-control" class="trigger">Reachable control</button>
+  </div>
+
+  <div class="modal-mask" id="mask" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card" id="modal" tabindex="0">
+      <h3 id="modal-title">Stuck modal</h3>
+      <p>Phase 2 has no way to close this. The keyboardAT engine should surface this dropdown for manual review.</p>
+      <button type="button" class="close">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // ───── Section A: aria-activedescendant loop ─────
+    (function () {
+      var combobox = document.getElementById('combobox');
+      var options = document.querySelectorAll('#listbox-options li');
+      var label = document.getElementById('combobox-label');
+      var index = 0;
+
+      function activate(i) {
+        // Wrap on both ends — the deliberate "loop" the engine must catch.
+        if (i < 0) i = options.length - 1;
+        if (i >= options.length) i = 0;
+        index = i;
+        options.forEach(function (o) { o.classList.remove('active'); });
+        options[index].classList.add('active');
+        combobox.setAttribute('aria-activedescendant', options[index].id);
+        label.textContent = options[index].textContent;
+      }
+
+      combobox.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); activate(index + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); activate(index - 1); }
+        else if (e.key === 'Tab') {
+          // Intentionally do NOT release focus — the trap pattern.
+          e.preventDefault();
+        }
+      });
+    })();
+
+    // ───── Section B: modal trap ─────
+    (function () {
+      var trigger = document.getElementById('open-trigger');
+      var mask = document.getElementById('mask');
+      var modal = document.getElementById('modal');
+
+      trigger.addEventListener('click', function () {
+        mask.classList.add('open');
+        modal.focus();
+      });
+
+      function trapKeys(e) {
+        if (!mask.classList.contains('open')) return;
+        if (['Escape', 'Tab', 'Enter', ' '].indexOf(e.key) !== -1) {
+          e.preventDefault();
+          e.stopPropagation();
+          modal.focus();
+        }
+      }
+      document.addEventListener('keydown', trapKeys, true);
+
+      mask.addEventListener('mousedown', function (e) {
+        if (e.target === mask) {
+          e.preventDefault();
+          modal.focus();
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

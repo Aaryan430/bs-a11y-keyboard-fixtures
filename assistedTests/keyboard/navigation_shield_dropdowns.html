@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Navigation Shield Dropdowns Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .anchor-trigger {
+      display: inline-block;
+      padding: 8px 16px;
+      color: white;
+      text-decoration: none;
+      border-radius: 3px;
+    }
+
+    .anchor-trigger.nav { background: #2980b9; }
+    .anchor-trigger.scroll { background: #16a085; }
+    .anchor-trigger.href-absolute { background: #8e44ad; }
+    .anchor-trigger.href-relative { background: #d35400; }
+
+    .anchor-trigger:focus { outline: 2px solid #f39c12; }
+
+    .submit-trigger {
+      padding: 8px 16px;
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .submit-trigger:focus { outline: 2px solid #f39c12; }
+
+    .panel {
+      display: none;
+      margin-top: 8px;
+      padding: 8px;
+      background: #fffae6;
+      border-left: 3px solid #f39c12;
+    }
+
+    .panel.open { display: block; }
+
+    .scroll-target {
+      margin-top: 1200px;
+      padding: 16px;
+      background: #ecf0f1;
+    }
+
+    .counter {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Navigation Shield Dropdowns — Keyboard AT fixture</h1>
+  <p>
+    Four sections exercise the navigation-shield logic from different angles. The shield must
+    engage on A, C, D and remain disengaged on B.
+  </p>
+
+  <!-- ============================================================
+       Section A — aria-controls + hash href + navigation handler
+       Shield MUST engage. preventDefault + location.assign would
+       unload the page otherwise.
+       ============================================================ -->
+  <div class="demo-section" data-section="A">
+    <h2>A. aria-controls + hash href (navigation)</h2>
+    <a
+      class="anchor-trigger nav"
+      id="trigger-nav"
+      href="#panel-a"
+      aria-controls="panel-a"
+      aria-haspopup="true"
+      aria-expanded="false"
+      onclick="event.preventDefault(); window.location.assign('about:blank');"
+    >
+      Open Menu A
+    </a>
+    <div class="panel" id="panel-a">
+      Panel A — shield must prevent the location.assign from firing during simulation.
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Section B — aria-controls + hash href + scroll-only
+       Shield must NOT engage. Plain in-page anchor, no router.
+       ============================================================ -->
+  <div class="demo-section" data-section="B">
+    <h2>B. aria-controls + hash href (scroll-only, benign)</h2>
+    <a
+      class="anchor-trigger scroll"
+      id="trigger-scroll"
+      href="#scroll-target"
+      aria-controls="scroll-target"
+      aria-haspopup="false"
+    >
+      Jump to scroll target
+    </a>
+  </div>
+
+  <!-- ============================================================
+       Section C — anchor with external/relative href (no aria-controls)
+       Enter would normally navigate via href. Shield must skip Enter.
+       Two example rows in this section: absolute + relative href.
+       ============================================================ -->
+  <div class="demo-section" data-section="C">
+    <h2>C. Anchor href that would navigate on Enter</h2>
+    <a
+      class="anchor-trigger href-absolute"
+      id="anchor-absolute"
+      href="https://www.browserstack.com/external-target"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      Products ▾ (absolute href)
+    </a>
+    <a
+      class="anchor-trigger href-relative"
+      id="anchor-relative"
+      href="../e2e/keyboard_at.html"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      Services ▾ (relative href)
+    </a>
+  </div>
+
+  <!-- ============================================================
+       Section D — submit button inside form
+       Enter would submit the form. Shield must skip Enter.
+       ============================================================ -->
+  <div class="demo-section" data-section="D">
+    <h2>D. Submit button inside form (Enter would submit)</h2>
+    <form
+      id="dropdown-form"
+      action="javascript:void(0)"
+      onsubmit="document.getElementById('submit-count').innerText = (parseInt(document.getElementById('submit-count').innerText, 10) + 1).toString(); return false;"
+    >
+      <button
+        type="submit"
+        class="submit-trigger"
+        id="submit-trigger"
+        aria-haspopup="true"
+        aria-expanded="false"
+        onclick="event.preventDefault(); document.getElementById('panel-d').classList.toggle('open')"
+      >
+        Submit-Button Dropdown ▾
+      </button>
+      <div class="panel" id="panel-d">Panel D — revealed by click only (preventDefault on form submit).</div>
+    </form>
+    <div class="counter">Form submitted <span id="submit-count">0</span> times.</div>
+  </div>
+
+  <div class="scroll-target" id="scroll-target">
+    <h3>Scroll target reached</h3>
+    <p>If you can read this without the page reloading, Section B's anchor worked.</p>
+  </div>
+</body>
+
+</html>

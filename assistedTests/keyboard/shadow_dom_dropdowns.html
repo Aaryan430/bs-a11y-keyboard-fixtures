@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Shadow DOM Dropdowns Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .light-dropdown {
+      padding: 8px 16px;
+      background: #34495e;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .light-panel {
+      display: none;
+      margin-top: 6px;
+      padding: 8px;
+      background: #ecf0f1;
+    }
+
+    .light-panel.open { display: block; }
+
+    .light-btn {
+      padding: 8px 16px;
+      background: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Shadow DOM Dropdowns — Keyboard AT fixture</h1>
+  <p>
+    Two contrasting shadow-root behaviors plus light-DOM controls for baseline. Engine should
+    traverse open roots (Section A), but never closed ones (Section B).
+  </p>
+
+  <!-- ============================================================
+       Section A — Open shadow root dropdown
+       Engine SHOULD traverse and detect the inner dropdown.
+       Includes a light-DOM dropdown as a control.
+       ============================================================ -->
+  <div class="demo-section" data-section="A">
+    <h2>A. Open shadow root dropdown</h2>
+    <p>Light dropdown (baseline) + open-shadow-root dropdown (should be detected).</p>
+    <button
+      type="button"
+      class="light-dropdown"
+      id="light-trigger"
+      aria-haspopup="true"
+      aria-expanded="false"
+      onclick="document.getElementById('light-panel').classList.toggle('open')"
+    >
+      Light dropdown ▾
+    </button>
+    <div class="light-panel" id="light-panel">Light dropdown content.</div>
+    <br><br>
+    <shadow-dropdown id="open-shadow-target"></shadow-dropdown>
+  </div>
+
+  <!-- ============================================================
+       Section B — Closed shadow root (negative test)
+       Engine should NOT detect anything inside the closed root.
+       Includes a light-DOM control button as a baseline so the run
+       still produces a real result.
+       ============================================================ -->
+  <div class="demo-section" data-section="B">
+    <h2>B. Closed shadow root (engine must NOT detect inner element)</h2>
+    <p>Only the light-DOM "Visible to engine" button should be detected.</p>
+    <button type="button" class="light-btn" id="light-control">Visible to engine</button>
+    <br><br>
+    <closed-shadow-host id="closed-shadow-target"></closed-shadow-host>
+  </div>
+
+  <script>
+    // ───── Section A: open shadow root with dropdown ─────
+    class ShadowDropdown extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `
+          <style>
+            :host { display: block; }
+            button {
+              padding: 8px 16px;
+              background: #16a085;
+              color: white;
+              border: none;
+              border-radius: 3px;
+              cursor: pointer;
+            }
+            button:focus { outline: 2px solid #f39c12; }
+            .panel {
+              display: none;
+              margin-top: 6px;
+              padding: 8px;
+              background: #fffae6;
+              border-left: 3px solid #16a085;
+            }
+            .panel.open { display: block; }
+          </style>
+          <button id="shadow-trigger"
+                  aria-haspopup="true"
+                  aria-expanded="false">
+            Shadow dropdown ▾
+          </button>
+          <div class="panel" id="shadow-panel">Shadow dropdown content (inside OPEN shadow root).</div>
+        `;
+        var trigger = this.shadowRoot.getElementById('shadow-trigger');
+        var panel = this.shadowRoot.getElementById('shadow-panel');
+        trigger.addEventListener('click', function () { panel.classList.toggle('open'); });
+        trigger.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            panel.classList.toggle('open');
+          }
+        });
+      }
+    }
+    customElements.define('shadow-dropdown', ShadowDropdown);
+
+    // ───── Section B: closed shadow root with hidden interactive ─────
+    class ClosedShadowHost extends HTMLElement {
+      constructor() {
+        super();
+        // Closed root — engine cannot introspect this subtree per spec.
+        var root = this.attachShadow({ mode: 'closed' });
+        root.innerHTML = `
+          <style>
+            :host { display: block; }
+            .hidden-interactive {
+              padding: 8px 16px;
+              background: #c0392b;
+              color: white;
+              cursor: pointer;
+              display: inline-block;
+            }
+          </style>
+          <div
+            class="hidden-interactive"
+            id="hidden-target"
+            tabindex="0"
+            onclick="this.innerText = 'clicked';"
+          >
+            Custom interactive (engine should NOT see this)
+          </div>
+        `;
+      }
+    }
+    customElements.define('closed-shadow-host', ClosedShadowHost);
+  </script>
+</body>
+
+</html>

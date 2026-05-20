@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Large Custom Elements Perf Guard Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      margin-bottom: 6px;
+    }
+
+    .desc {
+      color: #555;
+      margin-bottom: 16px;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+    }
+
+    .ce-tile {
+      padding: 6px 8px;
+      background: #34495e;
+      color: white;
+      font-size: 12px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .ce-tile:focus {
+      outline: 2px solid #f39c12;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Large Custom Elements — Keyboard AT perf-guard fixture</h1>
+  <p class="desc">
+    Renders 300 custom interactive divs programmatically. This page guards the 28-second WebSocket
+    stall regression discovered earlier — the keyboardAT new flow must chunk and transmit
+    custom-element data without triggering the per-frame size threshold that previously caused the
+    chunks to stall in Chrome's WebSocket transport. End-to-end (request → server response) should
+    complete in under ~15 seconds for this payload size.
+  </p>
+
+  <div id="grid" aria-label="Custom interactive grid"></div>
+
+  <script>
+    (function () {
+      var grid = document.getElementById('grid');
+      var TOTAL = 300;
+      for (var i = 0; i < TOTAL; i++) {
+        var tile = document.createElement('div');
+        tile.className = 'ce-tile';
+        tile.setAttribute('tabindex', '0');
+        tile.setAttribute('data-tile-index', String(i));
+        tile.textContent = 'Tile ' + (i + 1);
+        // Both click + keydown so detection identifies it as keyboard-accessible.
+        tile.addEventListener('click', function () {
+          this.style.background = '#16a085';
+        });
+        tile.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.style.background = '#16a085';
+          }
+        });
+        grid.appendChild(tile);
+      }
+    })();
+  </script>
+</body>
+
+</html>

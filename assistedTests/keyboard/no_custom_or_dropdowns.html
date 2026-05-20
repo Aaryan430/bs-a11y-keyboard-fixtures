@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>No Custom Elements or Dropdowns Fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 720px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>No Custom Elements or Dropdowns — Keyboard AT fixture</h1>
+  <p>
+    Page contains only semantic interactive elements: native <code>&lt;button&gt;</code>,
+    <code>&lt;a&gt;</code>, and form controls. There are <strong>zero</strong> custom
+    div/span interactivity, and <strong>zero</strong> dropdown patterns. Drives two AT empty-state
+    code paths simultaneously:
+  </p>
+  <ul>
+    <li>COLLECT_INTERACTIVE_ELEMENTS_DATA → skipped (no custom elements detected)</li>
+    <li>SELECT_MISSED_DROPDOWN_ELEMENTS → renders the "could not detect dropdowns" empty copy</li>
+  </ul>
+
+  <div class="demo-section">
+    <h2>Semantic buttons</h2>
+    <button type="button">Primary</button>
+    <button type="button">Secondary</button>
+    <button type="button">Tertiary</button>
+  </div>
+
+  <div class="demo-section">
+    <h2>Semantic links</h2>
+    <a href="https://www.browserstack.com">External link</a>
+    &nbsp;|&nbsp;
+    <a href="#section-form">Anchor to form</a>
+  </div>
+
+  <div class="demo-section" id="section-form">
+    <h2>Semantic form (no dropdowns)</h2>
+    <form onsubmit="event.preventDefault(); alert('Submitted');">
+      <label for="email">Email</label>
+      <input id="email" type="email" required>
+      <br><br>
+      <label for="message">Message</label>
+      <textarea id="message" rows="3" required></textarea>
+      <br><br>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</body>
+
+</html>
