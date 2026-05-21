@@ -45,10 +45,10 @@
 <body>
   <h1>Open Shadow DOM Dropdowns — Keyboard AT fixture</h1>
   <p>
-    Light-DOM dropdown plus an open-shadow-root dropdown. The engine should
-    traverse the open shadow root and detect both dropdown triggers; both
-    respond to ENTER/SPACE so the simulation should classify them as
-    keyboard-accessible.
+    Light-DOM dropdown plus an open-shadow-root dropdown attached to a plain
+    div (no custom-element registration). The engine should traverse the open
+    shadow root and detect both dropdown triggers; both respond to ENTER/SPACE
+    so the simulation should classify them as keyboard-accessible.
   </p>
 
   <div class="demo-section" data-section="A">
@@ -66,54 +66,48 @@
     </button>
     <div class="light-panel" id="light-panel">Light dropdown content.</div>
     <br><br>
-    <shadow-dropdown id="open-shadow-target"></shadow-dropdown>
+    <div id="shadow-host"></div>
   </div>
 
   <script>
-    class ShadowDropdown extends HTMLElement {
-      constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-        this.shadowRoot.innerHTML = `
-          <style>
-            :host { display: block; }
-            button {
-              padding: 8px 16px;
-              background: #16a085;
-              color: white;
-              border: none;
-              border-radius: 3px;
-              cursor: pointer;
-            }
-            button:focus { outline: 2px solid #f39c12; }
-            .panel {
-              display: none;
-              margin-top: 6px;
-              padding: 8px;
-              background: #fffae6;
-              border-left: 3px solid #16a085;
-            }
-            .panel.open { display: block; }
-          </style>
-          <button id="shadow-trigger"
-                  aria-haspopup="true"
-                  aria-expanded="false">
-            Shadow dropdown ▾
-          </button>
-          <div class="panel" id="shadow-panel">Shadow dropdown content (inside OPEN shadow root).</div>
-        `;
-        var trigger = this.shadowRoot.getElementById('shadow-trigger');
-        var panel = this.shadowRoot.getElementById('shadow-panel');
-        trigger.addEventListener('click', function () { panel.classList.toggle('open'); });
-        trigger.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            panel.classList.toggle('open');
-          }
-        });
-      }
-    }
-    customElements.define('shadow-dropdown', ShadowDropdown);
+    (function () {
+      var host = document.getElementById('shadow-host');
+      var root = host.attachShadow({ mode: 'open' });
+      root.innerHTML = [
+        '<style>',
+        '  button {',
+        '    padding: 8px 16px;',
+        '    background: #16a085;',
+        '    color: white;',
+        '    border: none;',
+        '    border-radius: 3px;',
+        '    cursor: pointer;',
+        '  }',
+        '  button:focus { outline: 2px solid #f39c12; }',
+        '  .panel {',
+        '    display: none;',
+        '    margin-top: 6px;',
+        '    padding: 8px;',
+        '    background: #fffae6;',
+        '    border-left: 3px solid #16a085;',
+        '  }',
+        '  .panel.open { display: block; }',
+        '</style>',
+        '<button id="shadow-trigger" aria-haspopup="true" aria-expanded="false">',
+        '  Shadow dropdown',
+        '</button>',
+        '<div class="panel" id="shadow-panel">Shadow dropdown content (inside OPEN shadow root).</div>'
+      ].join('\n');
+      var trigger = root.getElementById('shadow-trigger');
+      var panel = root.getElementById('shadow-panel');
+      trigger.addEventListener('click', function () { panel.classList.toggle('open'); });
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          panel.classList.toggle('open');
+        }
+      });
+    })();
   </script>
 </body>
 
