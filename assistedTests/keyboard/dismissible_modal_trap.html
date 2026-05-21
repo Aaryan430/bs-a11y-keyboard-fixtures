@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dismissible Modal Trap — Keyboard AT fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .trigger {
+      padding: 8px 16px;
+      background: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .trigger:focus { outline: 2px solid #f39c12; }
+
+    .modal-mask {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-mask.open { display: flex; }
+
+    .modal-card {
+      background: white;
+      padding: 24px;
+      border-radius: 6px;
+      width: 360px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-card button {
+      padding: 6px 12px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Dismissible Modal Trap — Keyboard AT fixture</h1>
+  <p>
+    Tab-reachable controls plus a modal that opens immediately on load. The
+    modal traps Tab focus inside itself so the AT's tab-scan surfaces the
+    trap-confirmation prompt. The user can dismiss the modal either via
+    <code>Escape</code> (keyboard) or by clicking outside the card (mouse),
+    so test cases can confirm any of:
+  </p>
+  <ul>
+    <li>Option 1: "I exited the trap using only keyboard" — user pressed Escape</li>
+    <li>Option 2 → "I exited the trap using other means" — user clicked outside</li>
+    <li>Option 3: "There is no focus trap" — modal is intentional, user overrides engine</li>
+  </ul>
+
+  <p>Pre-trap tab-reachable controls (so engine has something to tab through):</p>
+  <p>
+    <button type="button" id="pre-trap-1" class="trigger">Pre-trap button 1</button>
+    <button type="button" id="pre-trap-2" class="trigger">Pre-trap button 2</button>
+    <a href="#after" id="pre-trap-link">Pre-trap link</a>
+  </p>
+
+  <button type="button" id="open-modal" class="trigger" onclick="openModal()">Open modal again</button>
+
+  <div class="modal-mask" id="mask" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card" id="modal" tabindex="-1">
+      <h3 id="modal-title">Focus-trap modal</h3>
+      <p>Tab cycles within this modal until you press <kbd>Escape</kbd> or click the backdrop.</p>
+      <button type="button" id="modal-action-a" class="trigger">Action A</button>
+      <button type="button" id="modal-action-b" class="trigger">Action B</button>
+    </div>
+  </div>
+
+  <script>
+    var mask = document.getElementById('mask');
+    var modal = document.getElementById('modal');
+    var trigger = document.getElementById('open-modal');
+
+    function openModal() {
+      mask.classList.add('open');
+      modal.focus();
+    }
+
+    function closeModal() {
+      mask.classList.remove('open');
+      trigger.focus();
+    }
+
+    function isOpen() { return mask.classList.contains('open'); }
+
+    function trapKeys(e) {
+      if (!isOpen()) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+      if (e.key === 'Tab') {
+        var focusables = mask.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+        if (focusables.length === 0) return;
+        var first = focusables[0];
+        var last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    document.addEventListener('keydown', trapKeys, true);
+
+    mask.addEventListener('mousedown', function (e) {
+      if (e.target === mask) {
+        closeModal();
+      }
+    });
+
+    // Open the modal immediately on load so the engine's tab scan hits the trap.
+    openModal();
+  </script>
+</body>
+
+</html>
