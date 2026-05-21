@@ -41,6 +41,12 @@
 
   <div class="demo-section">
     <h2>Generic Tab focus trap (raises keyboard-trap rule)</h2>
+    <p>Tab-reachable controls before the trap (engine must traverse these first):</p>
+    <p>
+      <button type="button" id="pre-trap-1" class="trigger">Pre-trap button 1</button>
+      <button type="button" id="pre-trap-2" class="trigger">Pre-trap button 2</button>
+      <a href="#after" id="pre-trap-link">Pre-trap link</a>
+    </p>
     <p>Plain button whose <code>keydown</code> handler swallows Tab + Shift+Tab.</p>
     <button
       type="button"
@@ -51,9 +57,9 @@
       Tab is trapped on this button
     </button>
     <p>
-      Reachable control above the trap (for the engine to compare against):
+      Reachable control after the trap (the engine should NOT be able to reach it):
     </p>
-    <button type="button" id="trap-control" class="trigger">Reachable control</button>
+    <button type="button" id="trap-control" class="trigger">Unreachable control</button>
   </div>
 </body>
 
