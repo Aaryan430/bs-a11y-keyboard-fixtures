@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Navigation Shield — submit-button fixture (D)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .submit-trigger {
+      padding: 8px 16px;
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .submit-trigger:focus { outline: 2px solid #f39c12; }
+
+    .panel {
+      display: none;
+      margin-top: 8px;
+      padding: 8px;
+      background: #fffae6;
+      border-left: 3px solid #f39c12;
+    }
+
+    .panel.open { display: block; }
+
+    .counter {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Navigation Shield — submit-button fixture</h1>
+  <p>
+    A single dropdown trigger that is a <code>type="submit"</code> button
+    inside a form. Enter would submit the form. The shield must skip Enter
+    during simulation so the page does not reload.
+  </p>
+
+  <!-- ============================================================
+       Submit button inside form
+       Enter would submit the form. Shield must skip Enter.
+       ============================================================ -->
+  <div class="demo-section" data-section="D">
+    <h2>Submit button inside form (Enter would submit)</h2>
+    <form
+      id="dropdown-form"
+      action="javascript:void(0)"
+      onsubmit="document.getElementById('submit-count').innerText = (parseInt(document.getElementById('submit-count').innerText, 10) + 1).toString(); return false;"
+    >
+      <button
+        type="submit"
+        class="submit-trigger"
+        id="submit-trigger"
+        aria-haspopup="true"
+        aria-expanded="false"
+        onclick="event.preventDefault(); document.getElementById('panel-d').classList.toggle('open')"
+      >
+        Submit-Button Dropdown ▾
+      </button>
+      <div class="panel" id="panel-d">Panel D — revealed by click only (preventDefault on form submit).</div>
+    </form>
+    <div class="counter">Form submitted <span id="submit-count">0</span> times.</div>
+  </div>
+</body>
+
+</html>

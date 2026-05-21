@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Navigation Shield — aria-controls fixture (A + B)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .anchor-trigger {
+      display: inline-block;
+      padding: 8px 16px;
+      color: white;
+      text-decoration: none;
+      border-radius: 3px;
+    }
+
+    .anchor-trigger.nav { background: #2980b9; }
+    .anchor-trigger.scroll { background: #16a085; }
+
+    .anchor-trigger:focus { outline: 2px solid #f39c12; }
+
+    .panel {
+      display: none;
+      margin-top: 8px;
+      padding: 8px;
+      background: #fffae6;
+      border-left: 3px solid #f39c12;
+    }
+
+    .panel.open { display: block; }
+
+    .scroll-target {
+      margin-top: 1200px;
+      padding: 16px;
+      background: #ecf0f1;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Navigation Shield — aria-controls fixture</h1>
+  <p>
+    Two dropdown triggers exercise the navigation-shield logic with
+    <code>aria-controls</code> + hash href. Section A's hash also triggers a
+    JS navigation (<code>location.assign</code>) so the shield MUST engage.
+    Section B's hash is a plain in-page scroll anchor — the shield must
+    remain disengaged.
+  </p>
+
+  <!-- ============================================================
+       Section A — aria-controls + hash href + navigation handler
+       Shield MUST engage. preventDefault + location.assign would
+       unload the page otherwise.
+       ============================================================ -->
+  <div class="demo-section" data-section="A">
+    <h2>A. aria-controls + hash href (navigation)</h2>
+    <a
+      class="anchor-trigger nav"
+      id="trigger-nav"
+      href="#panel-a"
+      aria-controls="panel-a"
+      aria-haspopup="true"
+      aria-expanded="false"
+      onclick="event.preventDefault(); window.location.assign('about:blank');"
+    >
+      Open Menu A
+    </a>
+    <div class="panel" id="panel-a">
+      Panel A — shield must prevent the location.assign from firing during simulation.
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Section B — aria-controls + hash href + scroll-only
+       Shield must NOT engage. Plain in-page anchor, no router.
+       ============================================================ -->
+  <div class="demo-section" data-section="B">
+    <h2>B. aria-controls + hash href (scroll-only, benign)</h2>
+    <a
+      class="anchor-trigger scroll"
+      id="trigger-scroll"
+      href="#scroll-target"
+      aria-controls="scroll-target"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      Jump to scroll target
+    </a>
+  </div>
+
+  <div class="scroll-target" id="scroll-target">
+    <h3>Scroll target reached</h3>
+    <p>If you can read this without the page reloading, Section B's anchor worked.</p>
+  </div>
+</body>
+
+</html>

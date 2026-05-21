@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Navigation Shield — anchor href fixture (C)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h2 {
+      margin-top: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .anchor-trigger {
+      display: inline-block;
+      padding: 8px 16px;
+      color: white;
+      text-decoration: none;
+      border-radius: 3px;
+      margin-right: 8px;
+    }
+
+    .anchor-trigger.href-absolute { background: #8e44ad; }
+    .anchor-trigger.href-relative { background: #d35400; }
+
+    .anchor-trigger:focus { outline: 2px solid #f39c12; }
+  </style>
+</head>
+
+<body>
+  <h1>Navigation Shield — anchor href fixture</h1>
+  <p>
+    Two dropdown anchors whose href would navigate on Enter. The shield must
+    skip the Enter keypress on both during simulation.
+  </p>
+
+  <!-- ============================================================
+       Anchor with external/relative href (no aria-controls)
+       Enter would normally navigate via href. Shield must skip Enter.
+       ============================================================ -->
+  <div class="demo-section" data-section="C">
+    <h2>Anchor href that would navigate on Enter</h2>
+    <a
+      class="anchor-trigger href-absolute"
+      id="anchor-absolute"
+      href="https://www.browserstack.com/external-target"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      Products ▾ (absolute href)
+    </a>
+    <a
+      class="anchor-trigger href-relative"
+      id="anchor-relative"
+      href="../e2e/keyboard_at.html"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      Services ▾ (relative href)
+    </a>
+  </div>
+</body>
+
+</html>
