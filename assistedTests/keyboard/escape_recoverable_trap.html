@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Escape-recoverable Focus Trap — Keyboard AT fixture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .demo-section {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .trigger {
+      padding: 8px 16px;
+      background: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+
+    .trigger:focus { outline: 2px solid #f39c12; }
+
+    #trap-button.released {
+      background: #16a085;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #555;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Escape-recoverable Focus Trap — Keyboard AT fixture</h1>
+  <p>
+    Trap button that swallows Tab/Shift+Tab until the user presses
+    <code>Escape</code>. After Escape, the trap releases and Tab works
+    normally — the engine's continued tab scan reaches the rest of the page.
+  </p>
+
+  <div class="demo-section">
+    <h2>Pre-trap tabbables</h2>
+    <p>
+      <button type="button" id="pre-trap-1" class="trigger">Pre-trap button 1</button>
+      <button type="button" id="pre-trap-2" class="trigger">Pre-trap button 2</button>
+      <a href="#after" id="pre-trap-link">Pre-trap link</a>
+    </p>
+
+    <h2>Trap button (ESC releases)</h2>
+    <button type="button" id="trap-button" class="trigger">Tab is trapped here (press ESC to release)</button>
+
+    <h2>Post-trap tabbables</h2>
+    <p>
+      <button type="button" id="post-trap-1" class="trigger">Post-trap button 1</button>
+      <button type="button" id="post-trap-2" class="trigger">Post-trap button 2</button>
+    </p>
+
+    <p class="status">Trap state: <span id="trap-state">ACTIVE</span></p>
+  </div>
+
+  <script>
+    var trap = document.getElementById('trap-button');
+    var state = document.getElementById('trap-state');
+    var trapped = true;
+
+    trap.addEventListener('keydown', function (e) {
+      if (trapped && e.key === 'Tab') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+
+    // ESC at the document level releases the trap so subsequent Tab navigation works.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && trapped) {
+        trapped = false;
+        trap.classList.add('released');
+        trap.textContent = 'Trap released — Tab works normally';
+        state.textContent = 'RELEASED';
+      }
+    });
+  </script>
+</body>
+
+</html>
