@@ -54,8 +54,9 @@
 <body>
   <h1>Shadow DOM Dropdowns — Keyboard AT fixture</h1>
   <p>
-    Two contrasting shadow-root behaviors plus light-DOM controls for baseline. Engine should
-    traverse open roots (Section A), but never closed ones (Section B).
+    Contrasting shadow-root behaviors plus light-DOM controls for baseline. Engine should
+    traverse open roots (Sections A &amp; C), but never closed ones (Section B). Section C
+    has 4 focusable controls in one open root to verify each gets highlighted during the tab walk.
   </p>
 
   <!-- ============================================================
@@ -93,6 +94,21 @@
     <button type="button" class="light-btn" id="light-control">Visible to engine</button>
     <br><br>
     <closed-shadow-host id="closed-shadow-target"></closed-shadow-host>
+  </div>
+
+  <!-- ============================================================
+       Section C — Open shadow root with MULTIPLE focusable elements
+       Tab should visit all 4 inner controls, and the AT highlighter
+       should draw a numbered overlay on EACH one. Use this to verify
+       shadow-DOM elements get highlighted (not skipped / mis-placed).
+       ============================================================ -->
+  <div class="demo-section" data-section="C">
+    <h2>C. Open shadow root with multiple focusable elements</h2>
+    <p>
+      The custom element below hosts an open shadow root containing 4 focusable
+      controls. Each should be reachable via Tab and visually highlighted by the AT.
+    </p>
+    <shadow-toolbar id="open-shadow-multi"></shadow-toolbar>
   </div>
 
   <script>
@@ -171,6 +187,45 @@
       }
     }
     customElements.define('closed-shadow-host', ClosedShadowHost);
+
+    // ───── Section C: open shadow root with multiple focusable elements ─────
+    class ShadowToolbar extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `
+          <style>
+            :host { display: block; }
+            .toolbar {
+              display: flex;
+              gap: 10px;
+              flex-wrap: wrap;
+              padding: 12px;
+              background: #fffae6;
+              border-left: 3px solid #8e44ad;
+            }
+            .toolbar > * {
+              padding: 8px 14px;
+              background: #8e44ad;
+              color: white;
+              border: none;
+              border-radius: 3px;
+              cursor: pointer;
+              font: inherit;
+            }
+            .toolbar > *:focus { outline: 3px solid #f39c12; outline-offset: 2px; }
+            .toolbar input { background: white; color: #222; border: 1px solid #8e44ad; }
+          </style>
+          <div class="toolbar" role="group" aria-label="Shadow toolbar">
+            <button type="button" id="tb-bold">Bold</button>
+            <button type="button" id="tb-italic">Italic</button>
+            <a href="#tb-help" id="tb-help-link">Help</a>
+            <input type="text" id="tb-search" placeholder="Search…" aria-label="Search" />
+          </div>
+        `;
+      }
+    }
+    customElements.define('shadow-toolbar', ShadowToolbar);
   </script>
 </body>
 
